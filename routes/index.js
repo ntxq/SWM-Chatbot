@@ -20,3 +20,5 @@ router.get("/", async (req, res, next) => {
 
   res.json(users, conversations, message);
 });
+
+module.exports = router;
