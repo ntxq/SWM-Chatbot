@@ -1,11 +1,13 @@
 const express = require("express");
+const path = require("path");
 const router = express.Router();
 const libKakaoWork = require("../lib/kakaoWork");
 const initialMessage = require("../messages/initialMessage.json");
 const searchModal = require("../messages/searchModal.json");
+const resultMessage = require("../messages/resultMessage.json");
 
 //Production에서는 router.post("/chatbot", ...)로 변경
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   // const users = await libKakaoWork.getUserListAll();
   const users = [{ id: 2603836 }];
 
@@ -30,9 +32,24 @@ router.get("/delete", (req, res) =>
 );
 
 router.post("/request", (req, res) => {
-  const { value } = res.body;
+  const { value } = req.body;
 
-  return res.json({ view: searchModal });
+  res.json({ view: searchModal });
+});
+
+router.post("/callback", async (req, res) => {
+  const { actions, message } = req.body;
+
+  await libKakaoWork.sendMessage({
+    conversationId: message.conversation_id,
+    ...resultMessage,
+  });
+
+  res.end();
+});
+
+router.get("/result", (req, res) => {
+  res.send("결과창");
 });
 
 module.exports = router;

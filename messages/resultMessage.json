@@ -1,0 +1,21 @@
+{
+    "text": "검색결과를 확인하세요!",
+    "blocks": [
+      {
+        "type": "header",
+        "text": "검색결과",
+        "style": "blue"
+      },
+      {
+        "type": "text",
+        "text": "총 1명의 연수생이 검색 조건을 만족합니다!",
+        "markdown": true
+      },
+      {
+        "type": "button",
+        "text": "검색결과 확인",
+        "value": "https://gvuhbzgbv-siowk.run.goorm.io/result",
+        "style": "primary"
+      }
+    ]
+  }
