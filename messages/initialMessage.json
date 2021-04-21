@@ -1,0 +1,32 @@
+{
+  "text": "SoMa 자기소개서를 검색하세요!",
+  "blocks": [
+    {
+      "type": "header",
+      "text": "SoMa CV Search Bot",
+      "style": "blue"
+    },
+    {
+      "type": "text",
+      "text": "저희는 blablablabla",
+      "markdown": true
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "button",
+      "text": "개인정보 삭제",
+      "style": "danger",
+      "action_type": "open_inapp_browser",
+      "value": "https://gvuhbzgbv-siowk.run.goorm.io/delete"
+    },
+    {
+      "type": "button",
+      "text": "검색하기",
+      "style": "primary",
+      "action_type": "call_modal",
+      "value": "beginSearch"
+    }
+  ]
+}
