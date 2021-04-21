@@ -14,6 +14,7 @@
       {
         "type": "button",
         "text": "검색결과 확인",
+				"action_type": "open_inapp_browser",
         "value": "https://gvuhbzgbv-siowk.run.goorm.io/result",
         "style": "primary"
       }
