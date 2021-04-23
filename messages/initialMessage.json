@@ -11,7 +11,7 @@
       "text": "일정등록",
       "style": "default",
       "action_type": "open_inapp_browser",
-      "value": "https://gvuhbzgbv-siowk.run.goorm.io/register?"
+      "value": "{RegisterURL}"
     }
   ]
 }

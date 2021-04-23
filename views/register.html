@@ -14,6 +14,8 @@
       <input type="time" name="time" />
       <label for="body">내용</label>
       <input type="text" name="body" />
+      <label for="period">주기</label>
+      <input type="number" name="period">
       <input type="submit" value="submit" />
     </form>
 
@@ -34,7 +36,7 @@
         return "";
       }
 
-      document.querySelector("#token").value = getCookie("id0") + "." + getCookie("id1") + "." + getCookie("id2");
+      document.querySelector("#token").value = getCookie("token");
     </script>
   </body>
 </html>

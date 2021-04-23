@@ -19,22 +19,20 @@ router.get("/", async (req, res) => {
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
-  //언젠가는 리팩토링...
   const messages = await Promise.all([
     conversations.map((conversation) => {
-      tokenLib.genToken(conversation.id, (err, token) => {
+      tokenLib.genToken(conversation, (err, token) => {
         if (err) console.log(err);
 
         const tokenURL = token
           .split(".")
-          .map((val, i) => "id" + i + "=" + val)
+          .map((val, i) => "tokenPart" + i + "=" + val)
           .join("&");
 
-        //하드코딩해서 나중에 수정필요2 + initialMessage URL도 소마 워크스페이스 URL로 수정필요
         const tokenMessage = { ...initialMessage };
-        tokenMessage.blocks[1].value = tokenMessage.blocks[1].value.concat(
-          tokenURL
-        );
+        libKakaoWork.formatMessage(tokenMessage, {
+          RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
+        });
 
         libKakaoWork.sendMessage({
           conversationId: conversation.id,
@@ -79,25 +77,32 @@ router.post("/callback", async (req, res) => {
 });
 
 router.get("/register", (req, res) => {
-  //Query string으로 받은 토큰을 쿠키에 저장
   const query = req.query;
 
-  res.cookie("id0", query.id0);
-  res.cookie("id1", query.id1);
-  res.cookie("id2", query.id2);
+  res.cookie(
+    "token",
+    [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(".")
+  );
 
-  res.sendFile(path.join(__dirname + "/../views/register.html"));
+  res.sendFile(path.join(__dirname, "/../views/register.html"));
 });
 
 router.post("/submit", (req, res) => {
-	//토큰 추출 후 Conversation Id로 변환 => 메시지 전송
+  //토큰 추출 후 Conversation Id로 변환 => 메시지 전송
   const formToken = req.body.token;
-  tokenLib.verifyToken(formToken, (err, {data}) => {
-		//추가된 데이터 큐에 등록
-    scheduleManager.pushSchedule(data);
-    
+  tokenLib.verifyToken(formToken, (err, { data }) => {
+    //추가된 데이터 큐에 등록
+    const newSchedule = {
+      time: req.body.exp + " " + req.body.time,
+      conversationId: data.id,
+      content: req.body.body,
+      alarmPeriod: req.body.period,
+    };
+
+    scheduleManager.pushSchedule(newSchedule);
+
     libKakaoWork.sendMessage({
-      conversationId: data,
+      conversationId: data.id,
       ...resultMessage,
     });
   });
