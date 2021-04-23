@@ -29,13 +29,11 @@ router.get("/", async (req, res) => {
           .map((val, i) => "id" + i + "=" + val)
           .join("&");
 
-        //하드코딩해서 나중에 수정필요2
+        //하드코딩해서 나중에 수정필요2 + initialMessage URL도 소마 워크스페이스 URL로 수정필요
         const tokenMessage = { ...initialMessage };
         tokenMessage.blocks[1].value = tokenMessage.blocks[1].value.concat(
           tokenURL
         );
-
-        console.log(tokenURL);
 
         libKakaoWork.sendMessage({
           conversationId: conversation.id,
