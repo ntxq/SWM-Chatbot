@@ -10,9 +10,9 @@ const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
 
 //Production에서는 router.post("/chatbot", ...)로 변경
 router.get("/", async (req, res) => {
-	//타이머 시작
-	scheduleManager.startTimer();
-	
+  //타이머 시작
+  scheduleManager.startTimer();
+
   // const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
@@ -93,7 +93,7 @@ router.get("/register", (req, res) => {
 router.post("/submit", (req, res) => {
   //토큰 추출 후 Conversation Id로 변환 => 메시지 전송
   const formToken = req.body.token;
-  tokenLib.verifyToken(formToken, (err, { data }) => {		
+  tokenLib.verifyToken(formToken, (err, { data }) => {
     //추가된 데이터 큐에 등록
     const newSchedule = {
       time: new Date(req.body.exp + " " + req.body.time),
@@ -101,7 +101,7 @@ router.post("/submit", (req, res) => {
       content: req.body.body,
       alarmPeriod: Number(req.body.period),
     };
-				
+
     scheduleManager.pushSchedule(newSchedule);
 
     libKakaoWork.sendMessage({
@@ -109,8 +109,8 @@ router.post("/submit", (req, res) => {
       ...resultMessage,
     });
   });
-		
-	res.end();
+
+  res.end();
 });
 
 router.get("/my_schedule", (req, res) => {
