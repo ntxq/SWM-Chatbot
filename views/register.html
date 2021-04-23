@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+
+  <body>
+    <div id="tokens"></div>
+
+    <form action="/submit" method="post">
+      <input type="text" name="token" id="token" />
+
+      <label for="exp">날짜</label>
+      <input type="date" name="exp" />
+      <label for="time">시간</label>
+      <input type="time" name="time" />
+      <label for="body">내용</label>
+      <input type="text" name="body" />
+      <input type="submit" value="submit" />
+    </form>
+
+    <script>
+      function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(";");
+        for (let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) == " ") {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+
+      document.querySelector("#token").value = getCookie("id0") + "." + getCookie("id1") + "." + getCookie("id2");
+    </script>
+  </body>
+</html>
