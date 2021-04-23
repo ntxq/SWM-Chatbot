@@ -1,0 +1,24 @@
+{
+  "text": "알람",
+  "blocks": [
+    {
+      "type": "header",
+      "text": "{CONTENT}의 마감까지 {REMAIN}분 남았습니다.지금까지의 목표를 달성하였으면 O, 아니면 X를 눌러주세요.",
+      "style": "blue"
+    },
+    {
+      "type": "button",
+      "text": "O",
+      "style": "default",
+      "action_type": "submit_action",
+      "value": "true"
+    },
+    {
+      "type": "button",
+      "text": "X",
+      "style": "default",
+      "action_type": "submit_action",
+      "value": "false"
+    }
+  ]
+}
