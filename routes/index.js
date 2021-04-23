@@ -12,6 +12,7 @@ const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
 router.get("/", async (req, res) => {
   // const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
+  //최준영: 2628054
   const users = [{ id: 2603836 }];
 
   const conversations = await Promise.all(
@@ -92,7 +93,9 @@ router.post("/submit", (req, res) => {
 	//토큰 추출 후 Conversation Id로 변환 => 메시지 전송
   const formToken = req.body.token;
   tokenLib.verifyToken(formToken, (err, {data}) => {
-		
+		//추가된 데이터 큐에 등록
+    scheduleManager.pushSchedule(data);
+    
     libKakaoWork.sendMessage({
       conversationId: data,
       ...resultMessage,
