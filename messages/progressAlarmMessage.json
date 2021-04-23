@@ -2,9 +2,9 @@
   "text": "알람",
   "blocks": [
     {
-      "type": "header",
+      "type": "text",
       "text": "{CONTENT}의 마감까지 {REMAIN}분 남았습니다.지금까지의 목표를 달성하였으면 O, 아니면 X를 눌러주세요.",
-      "style": "blue"
+      "markdown": true
     },
     {
       "type": "button",
