@@ -98,8 +98,8 @@ router.post("/submit", (req, res) => {
     const newSchedule = {
       time: new Date(req.body.exp + " " + req.body.time),
       conversationId: Number(data.id),
-      content: req.body.body,
-      alarmPeriod: Number(req.body.period),
+      content: req.body.subject,
+      alarmPeriod: Number(req.body.nt_term),
     };
 
     scheduleManager.pushSchedule(newSchedule);
