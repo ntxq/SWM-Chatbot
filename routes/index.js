@@ -2,54 +2,72 @@ const express = require("express");
 const path = require("path");
 const router = express.Router();
 const libKakaoWork = require("../lib/kakaoWork");
-const initialMessage = require("../messages/initialMessage.json");
-const searchModal = require("../messages/searchModal.json");
-const resultMessage = require("../messages/resultMessage.json");
+const registerModal = require("../messages/registerModal.json");
+const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
 
 //Production에서는 router.post("/chatbot", ...)로 변경
 router.get("/", async (req, res) => {
   // const users = await libKakaoWork.getUserListAll();
-  const users = [{ id: 2603836 }];
-
+  const users = [{ id: 2628054 }];
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
-
-  const messages = await Promise.all([
-    conversations.map((conversation) =>
-      libKakaoWork.sendMessage({
-        conversationId: conversation.id,
-        ...initialMessage,
-      })
-    ),
-  ]);
-
+  conversations.forEach(conversation=>{utils.setInitState(conversation.id);})
+  
   res.end();
 });
 
-router.get("/delete", (req, res) =>
-  res.send("검색결과에서 자기 정보를 뺄 수 있도록 해주기.")
-);
-
-router.post("/request", (req, res) => {
-  const { value } = req.body;
-
-  res.json({ view: searchModal });
+router.post("/request", async (req, res) => {
+	const { actions, message, value } = req.body;
+  const modal = {view:""}
+  switch(value){
+    case "new_schedule":
+      modal.view = registerModal;
+      break;
+    case "new_group_schedule":
+      modal.view = registerGroupModal;
+      break;
+    default:
+      break;
+  }
+  res.json(modal)
 });
 
 router.post("/callback", async (req, res) => {
-  const { actions, message } = req.body;
-
-  await libKakaoWork.sendMessage({
-    conversationId: message.conversation_id,
-    ...resultMessage,
-  });
-
-  res.end();
+  const { actions, message, value, react_user_id } = req.body;
+  const coversationId = message.conversation_id
+  var responseMessage = {}
+  switch(value){
+    case "register":
+      callback.RegisterNewSchedule(actions);
+      break;
+    default:
+      break;
+  }
+  
+	res.json(responseMessage);
 });
 
-router.get("/result", (req, res) => {
-  res.send("결과창");
-});
+router.get("/my_schedule",(req,res)=>{
+  //SQL쿼리
+  //HTML 생성
+  res.send("<div>여기에 일정 표시 해줘야함</div>")
+})
+
+router.get("/all_schedule",(req,res)=>{
+  //SQL쿼리
+  //HTML 생성
+  res.send("<div>여기에 일정 표시 해줘야함</div>")
+})
+
+//일정 삭제
+router.get("/delete", (req, res) =>
+  res.send("일정 지울 수 있게 하기")
+);
+
+//일정 완료
+router.get("/delete", (req, res) =>
+  res.send("일정 지울 수 있게 하기")
+);
 
 module.exports = router;

@@ -1,0 +1,65 @@
+{
+	"title": "일정 등록",
+	"accept": "등록",
+	"decline": "취소",
+	"value": "register",
+	"blocks": [
+	  {
+		"type": "label",
+		"text": "월",
+		"markdown": true
+	  },
+	  {
+		"type": "input",
+		"name": "month",
+		"required": true,
+		"placeholder": "월"
+	  },
+		{
+		"type": "label",
+		"text": "일",
+		"markdown": true
+	  },
+		{
+		"type": "input",
+		"name": "day",
+		"required": true,
+		"placeholder": "일"
+	  },
+		{
+		"type": "label",
+		"text": "시",
+		"markdown": true
+		},
+		{
+		"type": "input",
+		"name": "hour",
+		"required": true,
+		"placeholder": "시"
+		},
+		{
+		"type": "label",
+		"text": "분",
+		"markdown": true
+		},
+		{
+		"type": "input",
+		"name": "minute",
+		"required": true,
+		"placeholder": "분"
+		},
+	  {
+		"type": "input",
+		"name": "keywords",
+		"required": false,
+		"placeholder": "키워드들을 넣어주세요"
+	  },
+	  {
+		"type": "input",
+		"name": "input_body",
+		"required": false,
+		"placeholder": "내용을 입력해주세요"
+	  }
+	]
+}
+  
