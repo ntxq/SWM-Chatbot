@@ -91,10 +91,12 @@ router.get("/register", (req, res) => {
 });
 
 router.post("/submit", (req, res) => {
+	//토큰 추출 후 Conversation Id로 변환 => 메시지 전송
   const formToken = req.body.token;
-  tokenLib.verifyToken(formToken, (err, id) => {
+  tokenLib.verifyToken(formToken, (err, {data}) => {
+		
     libKakaoWork.sendMessage({
-      conversationId: id,
+      conversationId: data,
       ...resultMessage,
     });
   });
