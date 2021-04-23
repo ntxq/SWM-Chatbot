@@ -1,0 +1,124 @@
+:root {
+    --primary: #707070;
+    --secondary: #393939;
+    --highlight: #2E82FF;
+}
+
+* {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--secondary);
+}
+
+input,
+select,
+option {
+    /* -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none; */
+    border-radius: 0 !important;
+}
+
+#main-wrap {
+    width: 100%;
+}
+
+#form-view {
+    max-width: 428px;
+    padding: 83px 37px 0 37px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.input-row {
+    display: flex;
+    align-items: flex-end;
+    margin: 32px 0 0 0;
+}
+
+.input-row:last-child {
+    justify-content: flex-end;
+}
+
+.input-row input,
+.input-row select {
+    padding: 4px !important;
+    border-bottom: 1px var(--primary) solid !important;
+    border: none;
+    outline: none;
+}
+
+.input-row:last-child input {
+    border-bottom: 0 !important;
+    padding: 6px 18px;
+    width: 81px;
+}
+
+#submit-btn {
+    background: var(--highlight);
+    color: #fff;
+}
+
+#cancle-btn {
+    margin-left: 10px;
+}
+
+.input-row::placeholder {
+    color: var(--primary);
+}
+
+.input-row input:focus,
+.input-row select:focus {
+    border-bottom: 1px var(--highlight) solid !important;
+}
+
+#nt-type-selector {
+    margin-left: 10px;
+}
+
+.nt-term {
+    text-align: right;
+    width: 81px;
+    box-sizing: border-box;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.custom-checkbox input[type="checkbox"]+label {
+    display: inline-block;
+    position: relative;
+    padding-left: 26px;
+    cursor: pointer;
+}
+
+.custom-checkbox input[type="checkbox"]+label:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid var(--primary);
+    box-sizing: border-box;
+}
+
+.custom-checkbox input[type="checkbox"]:checked+label:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    background: url('../imgs/tick.svg');
+    border: 1px solid #2E82FF;
+    box-sizing: border-box;
+}

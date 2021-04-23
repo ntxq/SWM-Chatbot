@@ -1,40 +1,152 @@
-<!DOCTYPE html>
-<html>
-  <head> </head>
+<!-- 백엔드 개발하시는 분들이 테스트용으로 만들어 놓으신 파일을 기준으로 작성했습니다. -->
 
-  <body>
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/basic.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="styles/sytle.css" type="text/css" media="all" />
+
+    <title>목표 등록 - 소마 5팀 챗봇</title>
+</head>
+
+
+<body>
+    
+    <div id="main-wrap" class="flex garo-center">
+        <!-- form에서 보내는 데이터 name은 편의를 위해 DB칼럼을 기준으로 작성했습니다.  -->
+        <form action="/submit" method="post">
+            <div id="form-view">
+
+                <!-- 어떤 값을 보내는 건지 잘 모르겠어서 일단 보이지 않게 해놓았습니다 -->
+                <input class="hide" type="text" name="token" id="token" />
+
+                <!-- form에서 한줄 한줄이 input-row입니다. -->
+
+                <!-- 목표를 전송하는 input입니다. -->
+                <div class="input-row">
+                    <input class="bar" type="text" name="subject" autocomplete="off" placeholder="목표" />
+                </div>
+
+                <!-- 종료일을 전송하는 input입니다 -->
+                <div class="input-row">
+                    <input class="bar" type="date" name="exp" autocomplete="off" placeholder="종료일" />
+                </div>
+
+                <!-- 알림 주기 관련 input 모음입니다 -->
+                <div class="input-row">
+
+                    <!-- DB에 알림주기/알림시각으로 표시된 값입니다. 예외적으로 칼럼 이름 대신 nt-term으로 입력했습니다. -->
+                    <!-- 백엔드와 논의가 필요합니다 -->
+                    <!-- nt_it_day, nt_it_days, nt_it_times, nt_it_time -->
+                    <!-- nt-type이 day(알림 유형이 요일별) 일때는 숫자를 요일로 바꿔서 표시해주세요. -->
+                    <!-- ex) 값이 2일때 -> '수', 3일때 -> '목'으로 표시 -->
+                    <input class="nt-term" type="number" name="nt-term" />
+                    
+                    <!-- 알림 유형을 전송하는 input입니다 -->
+                    <input type="hidden" name="nt-type" /> <!--  선택된 값을 여기에 넣으시면 됍니다 -->
+                    
+                    <!-- 커스텀 셀렉터입니다 -->
+                    <!-- document.querySelector('.custom-option.selected').dataset.value로 선택된 값에 접근할 수 있습니다. -->
+                    <div id="nt-type-selector" class="custom-select-wrapper">
+                        <div class="custom-select">
+                            <div class="custom-select__trigger"><span>일마다</span>
+                                <div class="arrow"><img src="./imgs/next.svg" /></div>
+                            </div>
+                            <div class="custom-options">
+                                <span class="custom-option selected" data-value="day">일</span>
+                                <span class="custom-option" data-value="days">요일</span>
+                                <span class="custom-option" data-value="times">시간</span>
+                                <span class="custom-option" data-value="once">한번</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 뒤에 붙는 설명 글자입니다. nt-type이 once일 때 '마다 알림' 대신 '만 알림' 으로 표시해주세요. -->
+                    <span style="padding:4px; line-height:19px; margin-left: 10px;">마다 알림</span>
+                </div>
+
+                <!-- 공개 여부를 전송하는 input입니다 -->
+                <div class="input-row custom-checkbox">
+                    <input id="public" type="checkbox" name="public" />
+                    <label for="public">
+                      <span>공유하기</span>
+                    </label>
+                </div>
+
+                <!-- 등록/취소 버튼입니다 -->
+                <div class="input-row">
+                    <input id="submit-btn" type="submit" value="등록" />
+                    <input id="cancle-btn" type="button" value="취소" />
+                </div>
+
+            </div>
+        </form>
+    </div>
+
     <div id="tokens"></div>
 
-    <form action="/submit" method="post">
-      <input type="text" name="token" id="token" />
+    <script>
+        // 백엔드 분들께서 작업해 놓으신 토큰?관련 코드인 것 같습니다
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(";");
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == " ") {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
 
-      <label for="exp">날짜</label>
-      <input type="date" name="exp" />
-      <label for="time">시간</label>
-      <input type="time" name="time" />
-      <label for="body">내용</label>
-      <input type="text" name="body" />
-      <input type="submit" value="submit" />
-    </form>
+        document.querySelector("#token").value = getCookie("id0") + "." + getCookie("id1") + "." + getCookie("id2");
+    </script>
 
     <script>
-      function getCookie(cname) {
-        let name = cname + "=";
-        let decodedCookie = decodeURIComponent(document.cookie);
-        let ca = decodedCookie.split(";");
-        for (let i = 0; i < ca.length; i++) {
-          let c = ca[i];
-          while (c.charAt(0) == " ") {
-            c = c.substring(1);
-          }
-          if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-          }
+        // 커스텀 셀렉터 관련 코드입니다. 다음 링크를 참고하였습니다.
+        // https://andrejgajdos.com/custom-select-dropdown/
+        for (const option of document.querySelectorAll(".custom-option")) {
+            option.addEventListener('click', function() {
+                if (!this.classList.contains('selected')) {
+                    this.parentNode.querySelector('.custom-option.selected').classList.remove('selected');
+                    this.classList.add('selected');
+                    this.closest('.custom-select').querySelector('.custom-select__trigger span').textContent = this.textContent;
+                }
+            })
         }
-        return "";
-      }
 
-      document.querySelector("#token").value = getCookie("id0") + "." + getCookie("id1") + "." + getCookie("id2");
+        window.addEventListener('click', function(e) {
+            const select = document.querySelector('.custom-select')
+            if (!select.contains(e.target)) {
+                select.classList.remove('open');
+            }
+        });
+
+
+        for (const dropdown of document.querySelectorAll(".custom-select-wrapper")) {
+            dropdown.addEventListener('click', function() {
+                this.querySelector('.custom-select').classList.toggle('open');
+            });
+        }
+
+        window.addEventListener('click', function(e) {
+            for (const select of document.querySelectorAll('.custom-select')) {
+                if (!select.contains(e.target)) {
+                    select.classList.remove('open');
+                }
+            }
+        });
     </script>
-  </body>
+</body>
+
 </html>
