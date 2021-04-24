@@ -48,10 +48,13 @@ option {
     outline: none;
 }
 
-.input-row:last-child input {
+.btns {
+    box-sizing: border-box;
+    margin-left: 10px;
     border-bottom: 0 !important;
     padding: 6px 18px;
     width: 81px;
+    text-align: center;
 }
 
 #submit-btn {
@@ -61,6 +64,7 @@ option {
 
 #cancle-btn {
     margin-left: 10px;
+    background: #dbdbdb;
 }
 
 .input-row::placeholder {

@@ -38,6 +38,7 @@
                     <input class="bar" type="date" name="exp" autocomplete="off" placeholder="종료일" />
                 </div>
 
+                <!-- 종료시간을 전송하는 input입니다 -->
                 <div class="input-row">
                     <input class="bar" type="time" name="time" autocomplete="off" placeholder="종료시간" />
                 </div>
@@ -85,8 +86,14 @@
 
                 <!-- 등록/취소 버튼입니다 -->
                 <div class="input-row">
-                    <input id="submit-btn" type="submit" value="등록" />
-                    <input id="cancle-btn" type="button" value="취소" />
+                    <input id="submit" class="hide" type="submit" value="submit" />
+                    <label for="submit">
+                        <div id="submit-btn" class="btns">등록</div>
+                    </label>
+                    <input id="cancle" class="hide" type="button" value="취소" />
+                    <label for="cancle">
+                        <div id="cancle-btn" class="btns">취소</div>
+                    </label>
                 </div>
 
             </div>
@@ -119,7 +126,8 @@
     <script>
         // 커스텀 셀렉터 관련 코드입니다. 다음 링크를 참고하였습니다.
         // https://andrejgajdos.com/custom-select-dropdown/
-        for (const option of document.querySelectorAll(".custom-option")) {
+        const options = document.querySelectorAll(".custom-option");
+        options.forEach((option) => {
             option.addEventListener('click', function() {
                 if (!this.classList.contains('selected')) {
                     this.parentNode.querySelector('.custom-option.selected').classList.remove('selected');
@@ -127,28 +135,29 @@
                     this.closest('.custom-select').querySelector('.custom-select__trigger span').textContent = this.textContent;
                 }
             })
-        }
+        });
 
         window.addEventListener('click', function(e) {
-            const select = document.querySelector('.custom-select')
+            const select = document.querySelector('.custom-select');
             if (!select.contains(e.target)) {
                 select.classList.remove('open');
             }
         });
 
-
-        for (const dropdown of document.querySelectorAll(".custom-select-wrapper")) {
+        const dropdowns = document.querySelectorAll(".custom-select-wrapper")
+        dropdowns.forEach((dropdown) => {
             dropdown.addEventListener('click', function() {
                 this.querySelector('.custom-select').classList.toggle('open');
             });
-        }
+        });
 
         window.addEventListener('click', function(e) {
-            for (const select of document.querySelectorAll('.custom-select')) {
+            const selects = document.querySelectorAll('.custom-select')
+            selects.forEach((select) => {
                 if (!select.contains(e.target)) {
                     select.classList.remove('open');
                 }
-            }
+            });
         });
     </script>
 </body>
