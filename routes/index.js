@@ -3,11 +3,9 @@ const router = express.Router();
 const path = require("path");
 const libKakaoWork = require("../lib/kakaoWork");
 const jwt = require("jsonwebtoken");
-const initialMessage = require("../messages/initialMessage.json");
 const resultMessage = require("../messages/resultMessage.json");
 const registerModal = require("../messages/registerModal.json");
 const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
-const { JsonWebTokenError } = require("jsonwebtoken");
 
 //Production에서는 router.post("/chatbot", ...)로 변경
 router.get("/", async (req, res) => {
@@ -23,29 +21,41 @@ router.get("/", async (req, res) => {
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
-	//나중에 다시 asynchronous로 바꿔야할듯1.
-  const messages = conversations.map((conversation) => {
+  const tokens = conversations.map((conversation) => {
     const token = jwt.sign(conversation, process.env.SECRET);
     const tokenURL = token
       .split(".")
       .map((val, i) => "tokenPart" + i + "=" + val)
       .join("&");
 
-    const tokenMessage = { ...initialMessage };
-    libKakaoWork.formatMessage(tokenMessage, {
-      RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
-    });
-
-    return tokenMessage;
+    return { tokenURL, conversation };
   });
 
   await Promise.all([
-    conversations.map((conversation, index) =>
+    tokens.map(({ tokenURL, conversation }) => {
+      const initMemssage = {
+        text: "일정을 등록하세요!",
+        blocks: [
+          {
+            type: "header",
+            text: "일정관리",
+            style: "blue",
+          },
+          {
+            type: "button",
+            text: "일정등록",
+            style: "default",
+            action_type: "open_inapp_browser",
+            value: "https://" + req.headers.host + "/register?" + tokenURL,
+          },
+        ],
+      };
+
       libKakaoWork.sendMessage({
         conversationId: conversation.id,
-        ...messages[index],
-      })
-    ),
+        ...initMemssage,
+      });			
+    }),
   ]);
 
   res.end();
@@ -95,9 +105,8 @@ router.get("/register", (req, res) => {
 
 router.post("/submit", async (req, res) => {
   const formToken = req.body.token;
-		
-	//나중에 다시 asynchronous로 바꿔야할듯2.
-  const data = await jwt.verify(formToken, process.env.SECRET);
+
+  const data = jwt.verify(formToken, process.env.SECRET);
 
   const newSchedule = {
     time: new Date(req.body.exp + " " + req.body.time),
