@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const libKakaoWork = require("../lib/kakaoWork");
-const tokenLib = require("../lib/tokenLib");
+const jwt = require("jsonwebtoken");
 const initialMessage = require("../messages/initialMessage.json");
 const resultMessage = require("../messages/resultMessage.json");
 const registerModal = require("../messages/registerModal.json");
@@ -13,36 +13,37 @@ router.get("/", async (req, res) => {
   //타이머 시작
   scheduleManager.startTimer();
 
-  // const users = await libKakaoWork.getUserListAll();
+  const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
-  const users = [{ id: 2603836 }];
+  //const users = [{ id: 2603836 }];
 
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
-  const messages = await Promise.all([
-    conversations.map((conversation) => {
-      tokenLib.genToken(conversation, (err, token) => {
-        if (err) console.log(err);
+  const messages = conversations.map((conversation) => {
+    const token = jwt.sign(conversation, process.env.SECRET);
+    const tokenURL = token
+      .split(".")
+      .map((val, i) => "tokenPart" + i + "=" + val)
+      .join("&");
 
-        const tokenURL = token
-          .split(".")
-          .map((val, i) => "tokenPart" + i + "=" + val)
-          .join("&");
+    const tokenMessage = { ...initialMessage };
+    libKakaoWork.formatMessage(tokenMessage, {
+      RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
+    });
 
-        const tokenMessage = { ...initialMessage };
-        libKakaoWork.formatMessage(tokenMessage, {
-          RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
-        });
+    return tokenMessage;
+  });
 
-        libKakaoWork.sendMessage({
-          conversationId: conversation.id,
-          ...tokenMessage,
-        });
-      });
-    }),
+  await Promise.all([
+    conversations.map((conversation, index) =>
+      libKakaoWork.sendMessage({
+        conversationId: conversation.id,
+        ...messages[index],
+      })
+    ),
   ]);
 
   res.end();
@@ -90,26 +91,23 @@ router.get("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "/../views/register.html"));
 });
 
-router.post("/submit", (req, res) => {
+router.post("/submit", async (req, res) => {
   //토큰 추출 후 Conversation Id로 변환 => 메시지 전송
-  console.log(req.body);
-
   const formToken = req.body.token;
-  tokenLib.verifyToken(formToken, (err, { data }) => {
-    //추가된 데이터 큐에 등록
-    const newSchedule = {
-      time: new Date(req.body.exp + " " + req.body.time),
-      conversationId: Number(data.id),
-      content: req.body.subject,
-      alarmPeriod: Number(req.body.nt_term),
-    };
+  const { data } = jwt.verify(formToken, process.env.SECRET);
 
-    scheduleManager.pushSchedule(newSchedule);
+  const newSchedule = {
+    time: new Date(req.body.exp + " " + req.body.time),
+    conversationId: Number(data.id),
+    content: req.body.subject,
+    alarmPeriod: Number(req.body.nt_term),
+  };
 
-    libKakaoWork.sendMessage({
-      conversationId: data.id,
-      ...resultMessage,
-    });
+  scheduleManager.pushSchedule(newSchedule);
+
+  await libKakaoWork.sendMessage({
+    conversationId: data.id,
+    ...resultMessage,
   });
 
   res.end();
