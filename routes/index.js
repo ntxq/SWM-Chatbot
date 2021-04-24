@@ -21,40 +21,38 @@ router.get("/", async (req, res) => {
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
-  const tokens = conversations.map((conversation) => {
+  const messages = conversations.map((conversation) => {
     const token = jwt.sign(conversation, process.env.SECRET);
     const tokenURL = token
       .split(".")
       .map((val, i) => "tokenPart" + i + "=" + val)
       .join("&");
 
-    return { tokenURL, conversation };
+    const initMessage = {
+      conversationId: conversation.id,
+      text: "일정을 등록하세요!",
+      blocks: [
+        {
+          type: "header",
+          text: "일정관리",
+          style: "blue",
+        },
+        {
+          type: "button",
+          text: "일정등록",
+          style: "default",
+          action_type: "open_inapp_browser",
+          value: "https://" + req.headers.host + "/register?" + tokenURL,
+        },
+      ],
+    };
+
+    return initMessage;
   });
 
   await Promise.all([
-    tokens.map(({ tokenURL, conversation }) => {
-      const initMemssage = {
-        text: "일정을 등록하세요!",
-        blocks: [
-          {
-            type: "header",
-            text: "일정관리",
-            style: "blue",
-          },
-          {
-            type: "button",
-            text: "일정등록",
-            style: "default",
-            action_type: "open_inapp_browser",
-            value: "https://" + req.headers.host + "/register?" + tokenURL,
-          },
-        ],
-      };
-
-      libKakaoWork.sendMessage({
-        conversationId: conversation.id,
-        ...initMemssage,
-      });			
+    messages.map((message) => {
+      libKakaoWork.sendMessage(message);
     }),
   ]);
 
