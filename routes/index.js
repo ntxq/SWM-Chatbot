@@ -7,21 +7,23 @@ const initialMessage = require("../messages/initialMessage.json");
 const resultMessage = require("../messages/resultMessage.json");
 const registerModal = require("../messages/registerModal.json");
 const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
+const { JsonWebTokenError } = require("jsonwebtoken");
 
 //Production에서는 router.post("/chatbot", ...)로 변경
 router.get("/", async (req, res) => {
   //타이머 시작
   scheduleManager.startTimer();
 
-  const users = await libKakaoWork.getUserListAll();
+  //const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
-  //const users = [{ id: 2603836 }];
+  const users = [{ id: 2603836 }];
 
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
+	//나중에 다시 asynchronous로 바꿔야할듯1.
   const messages = conversations.map((conversation) => {
     const token = jwt.sign(conversation, process.env.SECRET);
     const tokenURL = token
@@ -92,9 +94,10 @@ router.get("/register", (req, res) => {
 });
 
 router.post("/submit", async (req, res) => {
-  //토큰 추출 후 Conversation Id로 변환 => 메시지 전송
   const formToken = req.body.token;
-  const { data } = jwt.verify(formToken, process.env.SECRET);
+		
+	//나중에 다시 asynchronous로 바꿔야할듯2.
+  const data = await jwt.verify(formToken, process.env.SECRET);
 
   const newSchedule = {
     time: new Date(req.body.exp + " " + req.body.time),
