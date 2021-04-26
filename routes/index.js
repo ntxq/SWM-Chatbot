@@ -110,7 +110,7 @@ router.post("/submit", async (req, res) => {
     time: new Date(req.body.exp + " " + req.body.time),
     conversationId: Number(data.id),
     content: req.body.subject,
-    alarmPeriod: Number(req.body.nt_term),
+    alarmPeriod: Number(req.body.nt_term) * 60000,
   };
 
   scheduleManager.pushSchedule(newSchedule);
@@ -136,9 +136,6 @@ router.get("/all_schedule", (req, res) => {
 });
 
 //일정 삭제
-router.get("/delete", (req, res) => res.send("일정 지울 수 있게 하기"));
-
-//일정 완료
 router.get("/delete", (req, res) => res.send("일정 지울 수 있게 하기"));
 
 module.exports = router;
