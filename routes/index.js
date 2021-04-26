@@ -7,6 +7,17 @@ const resultMessage = require("../messages/resultMessage.json");
 const registerModal = require("../messages/registerModal.json");
 const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
 
+//todo NorangBerry 제대로 된 거 만들기
+const DEBUG = 1;
+if (DEBUG === 1) {
+  router.all("*", (req, res, next) => {
+    console.log(`URL\n${req.url}\n\n`);
+    console.log(`HEADER\n${JSON.stringify(req.headers, null, 2)}\n\n`);
+    console.log(`BODY\n${JSON.stringify(req.body, null, 2)}\n\n`);
+    next();
+  });
+}
+
 //Production에서는 router.post("/chatbot", ...)로 변경
 router.get("/", async (req, res) => {
   //타이머 시작
