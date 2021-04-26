@@ -54,7 +54,7 @@ router.get("/", async (req, res) => {
       libKakaoWork.sendMessage({
         conversationId: conversation.id,
         ...initMemssage,
-      });			
+      });
     }),
   ]);
 
