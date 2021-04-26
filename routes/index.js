@@ -34,8 +34,11 @@ router.get("/", async (req, res) => {
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
-  const tokens = conversations.map((conversation) => {
-    const token = jwt.sign(conversation, process.env.SECRET);
+  const tokens = conversations.map((conversation, index) => {
+    const token = jwt.sign(
+      { conversation, userId: users[index].id },
+      process.env.SECRET
+    );
     const tokenURL = token
       .split(".")
       .map((val, i) => "tokenPart" + i + "=" + val)
@@ -121,19 +124,40 @@ router.post("/submit", async (req, res) => {
       alarmPeriod = Infinity;
     }
 
-    const newSchedule = {
-      time: new Date(req.body.exp + " " + req.body.time),
-      conversationId: Number(decoded.id),
-      content: req.body.subject,
-      alarmPeriod,
-    };
+    if (req.body.share) {
+      const groupConversation = await libKakaoWork.openGroupConversations({
+        user_ids: [decoded.userId],
+      });
 
-    scheduleManager.pushPersonalSchedule(newSchedule);
+      const newGroupSchedule = {
+        time: new Date(req.body.exp + " " + req.body.time),
+        conversationId: [Number(decoded.conversation.id)],
+        groupConversationId: groupConversation.id,
+        content: req.body.subject,
+        alarmPeriod,
+      };
 
-    await libKakaoWork.sendMessage({
-      conversationId: decoded.id,
-      ...resultMessage,
-    });
+      scheduleManager.pushGroupSchedule(newGroupSchedule);
+
+      await libKakaoWork.sendMessage({
+        conversationId: groupConversation.id,
+        ...resultMessage,
+      });
+    } else {
+      const newSchedule = {
+        time: new Date(req.body.exp + " " + req.body.time),
+        conversationId: Number(decoded.conversation.id),
+        content: req.body.subject,
+        alarmPeriod,
+      };
+
+      scheduleManager.pushPersonalSchedule(newSchedule);
+
+      await libKakaoWork.sendMessage({
+        conversationId: decoded.conversation.id,
+        ...resultMessage,
+      });
+    }
 
     res.end();
   });
