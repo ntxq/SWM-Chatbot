@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
-const libKakaoWork = require("../lib/kakaoWork");
 const jwt = require("jsonwebtoken");
+const libKakaoWork = require("../lib/kakaoWork");
+const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
+
+const initialMemssage = require("../messages/initialMessage.json");
 const resultMessage = require("../messages/resultMessage.json");
 const registerModal = require("../messages/registerModal.json");
-const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
 
 //todo NorangBerry 제대로 된 거 만들기
 const DEBUG = 1;
@@ -26,7 +28,7 @@ router.get("/", async (req, res) => {
   //const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
-  const users = [{ id: 2628054 },{ id: 2603836 }];
+  const users = [{ id: 2628054 }, { id: 2603836 }];
 
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
@@ -44,27 +46,13 @@ router.get("/", async (req, res) => {
 
   await Promise.all([
     tokens.map(({ tokenURL, conversation }) => {
-      const initMemssage = {
-        text: "일정을 등록하세요!",
-        blocks: [
-          {
-            type: "header",
-            text: "일정관리",
-            style: "blue",
-          },
-          {
-            type: "button",
-            text: "일정등록",
-            style: "default",
-            action_type: "open_inapp_browser",
-            value: "https://" + req.headers.host + "/register?" + tokenURL,
-          },
-        ],
-      };
+      const message = libKakaoWork.formatMessage(initialMemssage, {
+        RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
+      });
 
       libKakaoWork.sendMessage({
         conversationId: conversation.id,
-        ...initMemssage,
+        ...message,
       });
     }),
   ]);
@@ -105,38 +93,50 @@ router.post("/callback", async (req, res) => {
 
 router.get("/register", (req, res) => {
   const query = req.query;
-
-  res.cookie(
-    "token",
-    [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(".")
+  const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
+    "."
   );
 
-  //res.redirect('https://nohgijin.github.io/todo/')
+  res.cookie("token", token);
+
   res.sendFile(path.join(__dirname, "/../views/register.html"));
 });
 
 router.post("/submit", async (req, res) => {
-  const formToken = req.body.token;
+  const formToken = req.cookies.token;
 
-  const data = jwt.verify(formToken, process.env.SECRET);
-	
-  const newSchedule = {
-    time: new Date(req.body.exp + " " + req.body.time),
-    conversationId: Number(data.id),
-    content: req.body.subject,
-    alarmPeriod: Number(req.body["nt-term"]) * 60000,
-  };
+  await jwt.verify(formToken, process.env.SECRET, async (err, decoded) => {
+    if (err) return res.end();
 
-  scheduleManager.pushSchedule(newSchedule);
+    const ntType = req.body.ntType;
 
-  await libKakaoWork.sendMessage({
-    conversationId: data.id,
-    ...resultMessage,
+    let alarmPeriod;
+    if (ntType === "day") {
+      alarmPeriod = req.body.ntTerm * 86400000;
+    } else if (ntType === "days") {
+      alarmPeriod = 604800000;
+    } else if (ntType === "time") {
+      alarmPeriod = req.body.ntTerm * 3600000;
+    } else if (ntType === "once") {
+      alarmPeriod = Infinity;
+    }
+
+    const newSchedule = {
+      time: new Date(req.body.exp + " " + req.body.time),
+      conversationId: Number(decoded.id),
+      content: req.body.subject,
+      alarmPeriod,
+    };
+
+    scheduleManager.pushPersonalSchedule(newSchedule);
+
+    await libKakaoWork.sendMessage({
+      conversationId: decoded.id,
+      ...resultMessage,
+    });
+
+    res.end();
   });
-		
-	console.log(newSchedule);
-	
-  res.end();
 });
 
 router.get("/my_schedule", (req, res) => {
