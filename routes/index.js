@@ -140,7 +140,4 @@ router.get("/all_schedule", (req, res) => {
 //일정 삭제
 router.get("/delete", (req, res) => res.send("일정 지울 수 있게 하기"));
 
-//일정 완료
-router.get("/delete", (req, res) => res.send("일정 지울 수 있게 하기"));
-
 module.exports = router;
