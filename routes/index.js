@@ -20,11 +20,11 @@ if (DEBUG === 1) {
   });
 }
 
+//타이머 시작
+scheduleManager.startTimer();
+
 //Production에서는 router.post("/chatbot", ...)로 변경
 router.get("/", async (req, res) => {
-  //타이머 시작
-  scheduleManager.startTimer();
-
   //const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
