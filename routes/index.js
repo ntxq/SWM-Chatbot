@@ -15,44 +15,46 @@ router.get("/", async (req, res) => {
   //const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
-  const users = [{ id: 2603836 }];
+  const users = [{ id: 2628054 },{ id: 2603836 }];
 
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
-  const messages = conversations.map((conversation) => {
+  const tokens = conversations.map((conversation) => {
     const token = jwt.sign(conversation, process.env.SECRET);
     const tokenURL = token
       .split(".")
       .map((val, i) => "tokenPart" + i + "=" + val)
       .join("&");
 
-    const initMessage = {
-      conversationId: conversation.id,
-      text: "일정을 등록하세요!",
-      blocks: [
-        {
-          type: "header",
-          text: "일정관리",
-          style: "blue",
-        },
-        {
-          type: "button",
-          text: "일정등록",
-          style: "default",
-          action_type: "open_inapp_browser",
-          value: "https://" + req.headers.host + "/register?" + tokenURL,
-        },
-      ],
-    };
-
-    return initMessage;
+    return { tokenURL, conversation };
   });
 
   await Promise.all([
-    messages.map((message) => {
-      libKakaoWork.sendMessage(message);
+    tokens.map(({ tokenURL, conversation }) => {
+      const initMemssage = {
+        text: "일정을 등록하세요!",
+        blocks: [
+          {
+            type: "header",
+            text: "일정관리",
+            style: "blue",
+          },
+          {
+            type: "button",
+            text: "일정등록",
+            style: "default",
+            action_type: "open_inapp_browser",
+            value: "https://" + req.headers.host + "/register?" + tokenURL,
+          },
+        ],
+      };
+
+      libKakaoWork.sendMessage({
+        conversationId: conversation.id,
+        ...initMemssage,
+      });
     }),
   ]);
 
@@ -98,6 +100,7 @@ router.get("/register", (req, res) => {
     [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(".")
   );
 
+  //res.redirect('https://nohgijin.github.io/todo/')
   res.sendFile(path.join(__dirname, "/../views/register.html"));
 });
 
@@ -105,12 +108,12 @@ router.post("/submit", async (req, res) => {
   const formToken = req.body.token;
 
   const data = jwt.verify(formToken, process.env.SECRET);
-
+	
   const newSchedule = {
     time: new Date(req.body.exp + " " + req.body.time),
     conversationId: Number(data.id),
     content: req.body.subject,
-    alarmPeriod: Number(req.body.nt_term) * 60000,
+    alarmPeriod: Number(req.body["nt-term"]) * 60000,
   };
 
   scheduleManager.pushSchedule(newSchedule);
@@ -119,7 +122,9 @@ router.post("/submit", async (req, res) => {
     conversationId: data.id,
     ...resultMessage,
   });
-
+		
+	console.log(newSchedule);
+	
   res.end();
 });
 
