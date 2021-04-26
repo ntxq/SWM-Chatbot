@@ -7,7 +7,6 @@ const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
 
 const initialMemssage = require("../messages/initialMessage.json");
 const resultMessage = require("../messages/resultMessage.json");
-const registerModal = require("../messages/registerModal.json");
 
 //todo NorangBerry 제대로 된 거 만들기
 const DEBUG = 1;
@@ -51,6 +50,8 @@ router.get("/", async (req, res) => {
     tokens.map(({ tokenURL, conversation }) => {
       const message = libKakaoWork.formatMessage(initialMemssage, {
         RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
+        myScheduleURL:
+          "https://" + req.headers.host + "/mySchedule?" + tokenURL,
       });
 
       libKakaoWork.sendMessage({
@@ -61,37 +62,6 @@ router.get("/", async (req, res) => {
   ]);
 
   res.end();
-});
-
-router.post("/request", async (req, res) => {
-  const { actions, message, value } = req.body;
-  const modal = { view: "" };
-  switch (value) {
-    case "new_schedule":
-      modal.view = registerModal;
-      break;
-    case "new_group_schedule":
-      modal.view = registerGroupModal;
-      break;
-    default:
-      break;
-  }
-  res.json(modal);
-});
-
-router.post("/callback", async (req, res) => {
-  const { action_name, message, value, react_user_id } = req.body;
-  var responseMessage = {};
-  switch (action_name) {
-    case "progress_check":
-      const arr = value.split("/");
-      scheduleManager.setPeriodAchieve(arr[1], arr[0] === "success", actions);
-      break;
-    default:
-      break;
-  }
-
-  res.json(responseMessage);
 });
 
 router.get("/register", (req, res) => {
@@ -105,68 +75,15 @@ router.get("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "/../views/register.html"));
 });
 
-router.post("/submit", async (req, res) => {
-  const formToken = req.cookies.token;
+router.get("/mySchedule", (req, res) => {
+  const query = req.query;
+  const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
+    "."
+  );
 
-  await jwt.verify(formToken, process.env.SECRET, async (err, decoded) => {
-    if (err) return res.end();
+  res.cookie("token", token);
 
-    const ntType = req.body.ntType;
-
-    let alarmPeriod;
-    if (ntType === "day") {
-      alarmPeriod = req.body.ntTerm * 86400000;
-    } else if (ntType === "days") {
-      alarmPeriod = 604800000;
-    } else if (ntType === "time") {
-      alarmPeriod = req.body.ntTerm * 3600000;
-    } else if (ntType === "once") {
-      alarmPeriod = Infinity;
-    }
-
-    if (req.body.share) {
-      const groupConversation = await libKakaoWork.openGroupConversations({
-        user_ids: [decoded.userId],
-      });
-
-      const newGroupSchedule = {
-        time: new Date(req.body.exp + " " + req.body.time),
-        conversationId: [Number(decoded.conversation.id)],
-        groupConversationId: groupConversation.id,
-        content: req.body.subject,
-        alarmPeriod,
-      };
-
-      scheduleManager.pushGroupSchedule(newGroupSchedule);
-
-      await libKakaoWork.sendMessage({
-        conversationId: groupConversation.id,
-        ...resultMessage,
-      });
-    } else {
-      const newSchedule = {
-        time: new Date(req.body.exp + " " + req.body.time),
-        conversationId: Number(decoded.conversation.id),
-        content: req.body.subject,
-        alarmPeriod,
-      };
-
-      scheduleManager.pushPersonalSchedule(newSchedule);
-
-      await libKakaoWork.sendMessage({
-        conversationId: decoded.conversation.id,
-        ...resultMessage,
-      });
-    }
-
-    res.end();
-  });
-});
-
-router.get("/my_schedule", (req, res) => {
-  //SQL쿼리
-  //HTML 생성
-  res.send("<div>여기에 일정 표시 해줘야함</div>");
+  res.sendFile(path.join(__dirname, "/../views/mySchedule.html"));
 });
 
 router.get("/all_schedule", (req, res) => {

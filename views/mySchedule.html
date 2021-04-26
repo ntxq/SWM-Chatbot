@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<html>
+  <head></head>
+
+  <body>
+    <pre id="root"></pre>
+  </body>
+
+  <script>
+    fetch("/api/mySchedule")
+      .then((res) => res.json())
+      .then(
+        (data) =>
+          (document.querySelector("#root").innerHTML = JSON.stringify(data, null, 4))
+      );
+  </script>
+</html>

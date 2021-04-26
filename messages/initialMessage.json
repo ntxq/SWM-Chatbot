@@ -12,6 +12,13 @@
       "style": "default",
       "action_type": "open_inapp_browser",
       "value": "{RegisterURL}"
+    },
+    {
+      "type": "button",
+      "text": "나의 일정 조회",
+      "style": "default",
+      "action_type": "open_inapp_browser",
+      "value": "{myScheduleURL}"
     }
   ]
 }

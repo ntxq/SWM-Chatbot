@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const router = require("./routes");
+const api = require("./routes/API");
 require("dotenv").config();
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 app.use("/", router);
+app.use("/", api);
 
 app.use(function (req, res, next) {
   const err = new Error("Not Found");
