@@ -7,18 +7,25 @@
       "markdown": true
     },
     {
-      "type": "button",
-      "text": "O",
-      "style": "default",
-      "action_type": "submit_action",
-      "value": "true"
-    },
-    {
-      "type": "button",
-      "text": "X",
-      "style": "default",
-      "action_type": "submit_action",
-      "value": "false"
+      "type": "action",
+      "elements": [
+        {
+          "type": "button",
+          "text": "O",
+          "style": "default",
+          "action_type": "submit_action",
+          "action_name": "progress_check",
+          "value": "success/{ID}"
+        },
+        {
+          "type": "button",
+          "text": "X",
+          "style": "default",
+          "action_type": "submit_action",
+          "action_name": "progress_check",
+          "value": "fail/{ID}"
+        }
+      ]
     }
   ]
 }

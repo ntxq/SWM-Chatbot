@@ -77,12 +77,12 @@ router.post("/request", async (req, res) => {
 });
 
 router.post("/callback", async (req, res) => {
-  const { actions, message, value, react_user_id } = req.body;
-  const coversationId = message.conversation_id;
+  const { action_name, message, value, react_user_id } = req.body;
   var responseMessage = {};
-  switch (value) {
-    case "register":
-      callback.RegisterNewSchedule(actions);
+  switch (action_name) {
+    case "progress_check":
+      const arr = value.split("/");
+      scheduleManager.setPeriodAchieve(arr[1], arr[0] === "success", actions);
       break;
     default:
       break;
