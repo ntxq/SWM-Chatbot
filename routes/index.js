@@ -64,6 +64,7 @@ router.get("/", async (req, res) => {
   res.end();
 });
 
+//일정 등록용 페이지
 router.get("/register", (req, res) => {
   const query = req.query;
   const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
@@ -75,6 +76,7 @@ router.get("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "/../views/register.html"));
 });
 
+//나의 일정 조회용 페이지
 router.get("/mySchedule", (req, res) => {
   const query = req.query;
   const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
@@ -86,10 +88,16 @@ router.get("/mySchedule", (req, res) => {
   res.sendFile(path.join(__dirname, "/../views/mySchedule.html"));
 });
 
-router.get("/all_schedule", (req, res) => {
-  //SQL쿼리
-  //HTML 생성
-  res.send("<div>여기에 일정 표시 해줘야함</div>");
+//공개된 일정 조회용 페이지
+router.get("/allSchedule", (req, res) => {
+  const query = req.query;
+  const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
+    "."
+  );
+
+  res.cookie("token", token);
+
+  res.sendFile(path.join(__dirname, "/../views/allSchedule.html"));
 });
 
 //일정 삭제
