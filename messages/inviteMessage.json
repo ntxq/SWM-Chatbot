@@ -1,0 +1,10 @@
+{
+  "text": "${name}님이 참가하셨습니다!",
+  "blocks": [
+    {
+      "type": "text",
+      "text": "${name}님이 참가하셨습니다!!",
+      "markdown": true
+    }
+  ]
+}

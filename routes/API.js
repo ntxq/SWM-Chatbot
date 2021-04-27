@@ -6,6 +6,7 @@ const { scheduleManager } = require("../lib/scheduleQueue");
 const path = require("path");
 
 const resultMessage = require("../messages/resultMessage.json");
+const inviteMessage = require("../messages/inviteMessage.json");
 
 API.post("/submit", async (req, res) => {
   const formToken = req.cookies.token;
@@ -136,18 +137,30 @@ API.post("/api/joinShared", async (req, res) => {
 
   await jwt.verify(token, process.env.SECRET, async (err, decoded) => {
     if (err) return res.status(401).send({ success: false });
-
     //SQL쿼리: td_id로 조회 후 conversation_id에 decoded.userId 초대 후 메시지 발송 및 DB 업데이트
 
-    //Test Conversation ID: 1157381
     //곽병곤: 2603836
     //최준영: 2628054
+
+    //테스트 할 때 는 그룹채팅방 ID 따와서 수정
     const groupConversationId = 1157381;
+
+    //곽병곤: 2603836
+    //최준영: 2628054
     const usrId = 2628054;
 
-    libKakaoWork.inviteGroupConversation({
+    await libKakaoWork.inviteGroupConversation({
       conversation_id: groupConversationId,
-      usr_ids: [usrId],
+      user_ids: [usrId],
+    });
+
+    const formatted = libKakaoWork.formatMessage(inviteMessage, {
+      name: decoded.conversation.name,
+    });
+
+    await libKakaoWork.sendMessage({
+      conversationId: groupConversationId,
+      ...formatted,
     });
 
     res.json({ success: true });
