@@ -19,6 +19,13 @@
       "style": "default",
       "action_type": "open_inapp_browser",
       "value": "{myScheduleURL}"
+    },
+    {
+      "type": "button",
+      "text": "공개된 일정 조회",
+      "style": "default",
+      "action_type": "open_inapp_browser",
+      "value": "{allScheduleURL}"
     }
   ]
 }

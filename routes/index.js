@@ -52,6 +52,8 @@ router.get("/", async (req, res) => {
         RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
         myScheduleURL:
           "https://" + req.headers.host + "/mySchedule?" + tokenURL,
+        allScheduleURL:
+          "https://" + req.headers.host + "/allSchedule?" + tokenURL,
       });
 
       libKakaoWork.sendMessage({
