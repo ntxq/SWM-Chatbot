@@ -8,11 +8,17 @@
   </body>
 
   <script>
+    //윈도우 KakaoWork in-app-browser에서는 fetch 이용불가
     fetch("/api/mySchedule")
-      .then((res) => res.json())
-      .then(
-        (data) =>
-          (document.querySelector("#root").innerHTML = JSON.stringify(data, null, 4))
-      );
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        document.querySelector("#root").innerHTML = JSON.stringify(
+          data,
+          null,
+          4
+        );
+      });
   </script>
 </html>

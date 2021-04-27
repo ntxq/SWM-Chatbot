@@ -13,7 +13,6 @@ API.post("/submit", async (req, res) => {
 
     const ntType = req.body.ntType;
 
-    //todo ntxq st_date, st_time 필요
     let alarmPeriod;
     if (ntType === "day") {
       alarmPeriod = req.body.ntTerm * 86400000;
@@ -25,12 +24,25 @@ API.post("/submit", async (req, res) => {
       alarmPeriod = Infinity;
     }
 
+    //n요일마다 알림일경우, 가장 최근의 n요일을 시작일로 설정.
+    const stDate = new Date();
+    if (ntType === "days") {
+      const dayDiff = req.body.ntTerm - stDate.getDay();
+
+      if (dayDiff > 0) {
+        stDate.setDate(stDate.getDate() + dayDiff - 7);
+      } else if (dayDiff < 0) {
+        stDate.setDate(stDate.getDate() + dayDiff);
+      }
+    }
+
     if (req.body.share) {
       const groupConversation = await libKakaoWork.openGroupConversations({
         user_ids: [decoded.userId],
       });
 
       const newGroupSchedule = {
+        stDate,
         time: new Date(req.body.exp + " " + req.body.time),
         conversationId: [Number(decoded.conversation.id)],
         groupConversationId: groupConversation.id,
@@ -46,6 +58,7 @@ API.post("/submit", async (req, res) => {
       });
     } else {
       const newSchedule = {
+        stDate,
         time: new Date(req.body.exp + " " + req.body.time),
         conversationId: Number(decoded.conversation.id),
         content: req.body.subject,
