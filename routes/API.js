@@ -78,42 +78,63 @@ API.post("/submit", async (req, res) => {
 });
 
 API.get("/api/mySchedule", async (req, res) => {
-  const formToken = req.cookies.token;
+  const token = req.cookies.token;
 
-  await jwt.verify(formToken, process.env.SECRET, async (err, decoded) => {
+  await jwt.verify(token, process.env.SECRET, async (err, decoded) => {
     if (err)
       return res.status(401).send({ success: false, error: "Bad token" });
 
-    //SQL쿼리
+    //SQL쿼리: decoded.userId로 TODO 조회
     const placeholderData = {
-      name: "Kwak",
-      TODO: [
+      name: decoded.conversation.name,
+      TODOs: [
         {
           td_id: 1,
           state: "progress",
           public: false,
           subject: "Temporary",
-          st_date: "2021-04-27",
-          st_time: "00:24",
-          ed_date: "2021-04-31",
-          ed_time: "15:30",
+          st_date: new Date(),
+          ed_date: new Date(),
           ntType: "day",
           ntTerm: 1,
           usr_cnt: 1,
-          prgs: [
-            {
-              prg_type: "individual",
-              cur_amt: 2,
-              cum_amt: 2,
-              tot_amt: 5,
-              prg_per: 0.4,
-            },
-          ],
         },
       ],
     };
 
     res.json(placeholderData);
+  });
+});
+
+API.get("/api/sharedSchedule", async (req, res) => {
+  //SQL쿼리:TODO 테이블에서 public = true 조회
+  const placeholderData = {
+    TODOs: [
+      {
+        td_id: 1,
+        state: "progress",
+        public: false,
+        subject: "Temporary",
+        st_date: new Date(),
+        ed_date: new Date(),
+        ntType: "day",
+        ntTerm: 1,
+        usr_cnt: 1,
+      },
+    ],
+  };
+  res.json(placeholderData);
+});
+
+API.post("/api/joinShared", async (req, res) => {
+  const token = req.cookies.token;
+
+  await jwt.verify(token, process.env.SECRET, async (err, decoded) => {
+    if (err) return res.status(401).send({ success: false, err });
+
+    //SQL쿼리: td_id로 조회 후 conversation_id에 decoded.userId 초대 후 메시지 발송 및 DB 업데이트
+
+    res.json({ success: true });
   });
 });
 
