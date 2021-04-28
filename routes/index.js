@@ -109,7 +109,7 @@ router.post("/callback", (req, res) => {
       const arr = value.split("/");
       scheduleManager.setPeriodAchieve(
         message.conversation_id,
-        arr[1],
+        Number(arr[1]),
         arr[0] === "success"
       );
       break;
