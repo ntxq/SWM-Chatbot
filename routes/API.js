@@ -45,7 +45,6 @@ API.post("/submit", async (req, res) => {
       });
 
       const newGroupSchedule = {
-        stDate,
         time: new Date(req.body.exp + " " + req.body.time),
         conversationId: groupConversation.id,
         memberConversationId: [Number(decoded.conversation.id)],
@@ -53,7 +52,15 @@ API.post("/submit", async (req, res) => {
         alarmPeriod,
       };
 
-      scheduleManager.pushGroupSchedule(newGroupSchedule);
+      scheduleManager.pushGroupSchedule({
+        ...newGroupSchedule,
+
+        //For sql
+        userId: decoded.userId,
+        name: decoded.conversation.name,
+        stDate,
+        ntType,
+      });
 
       await libKakaoWork.sendMessage({
         conversationId: groupConversation.id,
@@ -61,16 +68,21 @@ API.post("/submit", async (req, res) => {
       });
     } else {
       const newSchedule = {
-        stDate,
         time: new Date(req.body.exp + " " + req.body.time),
         conversationId: Number(decoded.conversation.id),
         content: req.body.subject,
         alarmPeriod,
       };
 
-      scheduleManager.pushPersonalSchedule(newSchedule);
+      scheduleManager.pushPersonalSchedule({
+        ...newSchedule,
 
-      scheduleManager.pushPersonalSchedule(newSchedule);
+        //For sql
+        userId: decoded.userId,
+        name: decoded.conversation.name,
+        stDate,
+        ntType,
+      });
 
       await libKakaoWork.sendMessage({
         conversationId: decoded.conversation.id,
@@ -137,29 +149,13 @@ API.post("/api/joinShared", async (req, res) => {
 
   await jwt.verify(token, process.env.SECRET, async (err, decoded) => {
     if (err) return res.status(401).send({ success: false });
-    //SQL쿼리: td_id로 조회 후 conversation_id에 decoded.userId 초대 후 메시지 발송 및 DB 업데이트
 
-    //const groupConversationId = decoded.conversation.id;
-    const groupConversationId = 1157381;
-
-    //곽병곤: 2603836
-    //최준영: 2628054
-    //const userId = decoded.userId;
-    const userId = 2628054;
-
-    await libKakaoWork.inviteGroupConversation({
-      conversation_id: groupConversationId,
-      user_ids: [userId],
-    });
-
-    const formatted = libKakaoWork.formatMessage(inviteMessage, {
-      name: decoded.conversation.name,
-    });
-
-    await libKakaoWork.sendMessage({
-      conversationId: groupConversationId,
-      ...formatted,
-    });
+    await scheduleManager.groupMemberInsert(
+      req.body.td_id,
+      decoded.conversationId,
+      decoded.userId,
+      decoded.conversation.name
+    );
 
     res.json({ success: true });
   });
