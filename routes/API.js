@@ -3,6 +3,7 @@ const API = express.Router();
 const jwt = require("jsonwebtoken");
 const libKakaoWork = require("../lib/kakaoWork");
 const { scheduleManager } = require("../lib/scheduleQueue");
+const { dbConnection } = require("../lib/mysqlConnection");
 const path = require("path");
 
 const resultMessage = require("../messages/resultMessage.json");
@@ -98,50 +99,67 @@ API.get("/api/mySchedule", async (req, res) => {
   const token = req.cookies.token;
 
   await jwt.verify(token, process.env.SECRET, async (err, decoded) => {
-    if (err) return res.status(401).send({ success: false });
+    if (err) return res.status(401).json({ success: false });
 
-    //SQL쿼리: decoded.userId로 TODO 조회
-    const placeholderData = {
-      success: true,
-      name: decoded.conversation.name,
-      TODO: [
-        {
-          td_id: 1,
-          state: "progress",
-          public: false,
-          subject: "Temporary",
-          st_date: new Date(),
-          ed_date: new Date(),
-          ntType: "day",
-          ntTerm: 1,
-          usr_cnt: 1,
-        },
-      ],
-    };
+    dbConnection.query(
+      "pr_usr_todo_prg",
+      [decoded.userId, "@result"],
+      (error, results) => {
+        if (error) res.status(500).json({ success: false });
 
-    res.json(placeholderData);
+        const TODO = results[1].map((data) => ({
+          td_id: data.tdo_id,
+          state: data.prg_state,
+          public: data.public,
+          subject: data.subject,
+          st_date: data.st_date,
+          ed_date: data.ed_date,
+          ntType: data.nt_type,
+
+          //DB수정 예정
+          //ntTerm: data.ntTerm
+          //미구현
+          //usr_cnt: data.usr_cnt
+        }));
+
+        res.json({
+          success: true,
+          name: decoded.conversation.name,
+          TODO,
+        });
+      }
+    );
   });
 });
 
 API.get("/api/sharedSchedule", async (req, res) => {
-  //SQL쿼리:TODO 테이블에서 public = true 조회
-  const placeholderData = {
-    success: true,
-    TODO: [
-      {
-        td_id: 1,
+  dbConnection.query(
+    "pr_existing_public_todo",
+    ["@result"],
+    (error, results) => {
+      if (error) res.status(500).json({ success: false });
+
+      const TODO = results[1].map((data) => ({
+        td_id: data.tdo_id,
         state: "progress",
-        public: false,
-        subject: "Temporary",
-        st_date: new Date(),
-        ed_date: new Date(),
-        ntType: "day",
-        ntTerm: 1,
-        usr_cnt: 1,
-      },
-    ],
-  };
-  res.json(placeholderData);
+        public: true,
+        subject: data.subject,
+        st_date: data.st_date,
+        ed_date: data.ed_date,
+        ntType: data.nt_type,
+
+        //DB수정 예정
+        //ntTerm: data.ntTerm
+        //미구현
+        //usr_cnt: data.usr_cnt
+      }));
+
+      res.json({
+        success: true,
+        TODO,
+      });
+    }
+  );
 });
 
 API.post("/api/joinShared", async (req, res) => {
