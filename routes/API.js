@@ -47,8 +47,8 @@ API.post("/submit", async (req, res) => {
       const newGroupSchedule = {
         stDate,
         time: new Date(req.body.exp + " " + req.body.time),
-        conversationId: [Number(decoded.conversation.id)],
-        groupConversationId: groupConversation.id,
+        conversationId: groupConversation.id,
+        memberConversationId: [Number(decoded.conversation.id)],
         content: req.body.subject,
         alarmPeriod,
       };
