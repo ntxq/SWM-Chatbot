@@ -102,6 +102,25 @@ router.get("/allSchedule", (req, res) => {
   res.sendFile(path.join(__dirname, "/../views/allSchedule.html"));
 });
 
+router.post("/callback", (req, res) => {
+  const { action_name, message, value, react_user_id } = req.body;
+  var responseMessage = {};
+  switch (action_name) {
+    case "progress_check":
+      const arr = value.split("/");
+      responseMessage = scheduleManager.setPeriodAchieve(
+        arr[1],
+        arr[0] === "success",
+        actions
+      );
+      break;
+    default:
+      break;
+  }
+
+  res.json(responseMessage);
+});
+
 //일정 삭제
 router.get("/delete", (req, res) => res.send("일정 지울 수 있게 하기"));
 
