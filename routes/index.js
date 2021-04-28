@@ -104,21 +104,20 @@ router.get("/allSchedule", (req, res) => {
 
 router.post("/callback", (req, res) => {
   const { action_name, message, value, react_user_id } = req.body;
-  var responseMessage = {};
   switch (action_name) {
     case "progress_check":
       const arr = value.split("/");
-      responseMessage = scheduleManager.setPeriodAchieve(
+      scheduleManager.setPeriodAchieve(
+        message.conversation_id,
         arr[1],
-        arr[0] === "success",
-        actions
+        arr[0] === "success"
       );
       break;
     default:
       break;
   }
 
-  res.json(responseMessage);
+  res.end();
 });
 
 //일정 삭제
