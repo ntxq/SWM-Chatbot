@@ -108,6 +108,7 @@ router.post("/callback", (req, res) => {
     case "progress_check":
       const arr = value.split("/");
       scheduleManager.setPeriodAchieve(
+        react_user_id,
         message.conversation_id,
         Number(arr[1]),
         arr[0] === "success"
