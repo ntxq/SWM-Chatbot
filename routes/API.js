@@ -108,7 +108,7 @@ API.get("/api/mySchedule", async (req, res) => {
       (error, results) => {
         if (error) return res.status(500).json({ success: false, error });
 
-        const TODO = results[1].map((data) => ({
+        const TODO = results[0].map((data) => ({
           td_id: data.tdo_id,
           state: data.prg_state,
           public: data.public,
@@ -138,7 +138,7 @@ API.get("/api/sharedSchedule", async (req, res) => {
   dbConnection.query("pr_existing_public_todo", [], (error, results) => {
     if (error) return res.status(500).json({ success: false, error });
 
-    const TODO = results[1].map((data) => ({
+    const TODO = results[0].map((data) => ({
       td_id: data.tdo_id,
       state: "progress",
       public: true,
