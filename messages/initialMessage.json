@@ -1,17 +1,37 @@
 {
-  "text": "일정을 등록하세요!",
+  "text": "당신의 스케줄을 관리해 드립니다 :)",
   "blocks": [
     {
       "type": "header",
-      "text": "일정관리",
+      "text": "⏱️ 당신의 개인 비서, 일정관리 봇 🤖",
       "style": "blue"
     },
     {
+      "type": "text",
+      "text":
+        "저는 당신의 삐빅-,\n 일정 관리를 도와드리는 일정관리 봇 입니다.\n 📅 스케줄의 내용과 일시를 입력하시면,\n 제가 대신 기억해서, 주기적으로 알려드릴게요. 삐빅-",
+      "markdown": true
+    },
+    {
       "type": "button",
-      "text": "일정등록",
+      "text": "나의 일정 등록하기",
       "style": "default",
       "action_type": "open_inapp_browser",
       "value": "{RegisterURL}"
+    },
+    {
+      "type": "button",
+      "text": "등록한 일정 조회하기",
+      "style": "default",
+      "action_type": "open_inapp_browser",
+      "value": "{myScheduleURL}"
+    },
+    {
+      "type": "button",
+      "text": "친구들의 일정 조회하기",
+      "style": "default",
+      "action_type": "open_inapp_browser",
+      "value": "{allScheduleURL}"
     }
   ]
 }
