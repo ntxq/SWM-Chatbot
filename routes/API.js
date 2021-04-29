@@ -25,7 +25,8 @@ API.post("/submit", async (req, res) => {
     } else if (ntType === "time") {
       alarmPeriod = req.body.ntTerm * 3600000;
     } else if (ntType === "once") {
-      alarmPeriod = Infinity;
+      //Numeric limit for Date
+      alarmPeriod = 8640000000000000;
     }
 
     //n요일마다 알림일경우, 가장 최근의 n요일을 시작일로 설정.
@@ -103,9 +104,9 @@ API.get("/api/mySchedule", async (req, res) => {
 
     dbConnection.query(
       "pr_usr_todo_prg",
-      [decoded.userId, "@result"],
+      [decoded.userId],
       (error, results) => {
-        if (error) res.status(500).json({ success: false });
+        if (error) return res.status(500).json({ success: false, error });
 
         const TODO = results[1].map((data) => ({
           td_id: data.tdo_id,
@@ -133,33 +134,29 @@ API.get("/api/mySchedule", async (req, res) => {
 });
 
 API.get("/api/sharedSchedule", async (req, res) => {
-  dbConnection.query(
-    "pr_existing_public_todo",
-    ["@result"],
-    (error, results) => {
-      if (error) res.status(500).json({ success: false });
+  dbConnection.query("pr_existing_public_todo", [], (error, results) => {
+    if (error) return res.status(500).json({ success: false, error });
 
-      const TODO = results[1].map((data) => ({
-        td_id: data.tdo_id,
-        state: "progress",
-        public: true,
-        subject: data.subject,
-        st_date: data.st_date,
-        ed_date: data.ed_date,
-        ntType: data.nt_type,
+    const TODO = results[1].map((data) => ({
+      td_id: data.tdo_id,
+      state: "progress",
+      public: true,
+      subject: data.subject,
+      st_date: data.st_date,
+      ed_date: data.ed_date,
+      ntType: data.nt_type,
 
-        //DB수정 예정
-        //ntTerm: data.ntTerm
-        //미구현
-        //usr_cnt: data.usr_cnt
-      }));
+      //DB수정 예정
+      //ntTerm: data.ntTerm
+      //미구현
+      //usr_cnt: data.usr_cnt
+    }));
 
-      res.json({
-        success: true,
-        TODO,
-      });
-    }
-  );
+    res.json({
+      success: true,
+      TODO,
+    });
+  });
 });
 
 API.post("/api/joinShared", async (req, res) => {
