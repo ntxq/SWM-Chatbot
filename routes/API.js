@@ -25,8 +25,8 @@ API.post("/submit", async (req, res) => {
     } else if (ntType === "time") {
       alarmPeriod = req.body.ntTerm * 3600000;
     } else if (ntType === "once") {
-      //Numeric limit for Date
-      alarmPeriod = 8640000000000000;
+      //INT_MAX(DB use INT type)
+      alarmPeriod = 2147483647;
     }
 
     //n요일마다 알림일경우, 가장 최근의 n요일을 시작일로 설정.
