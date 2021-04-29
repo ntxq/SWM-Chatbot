@@ -116,11 +116,12 @@ API.get("/api/mySchedule", async (req, res) => {
           st_date: data.st_date,
           ed_date: data.ed_date,
           ntType: data.nt_type,
-
-          //DB수정 예정
-          //ntTerm: data.ntTerm
-          //미구현
-          //usr_cnt: data.usr_cnt
+          ntTerm:
+            data.nt_type === "once"
+              ? null
+              : data.nt_type === "days"
+              ? data.nt_it_days
+              : data.nt_time,
         }));
 
         res.json({
@@ -145,11 +146,12 @@ API.get("/api/sharedSchedule", async (req, res) => {
       st_date: data.st_date,
       ed_date: data.ed_date,
       ntType: data.nt_type,
-
-      //DB수정 예정
-      //ntTerm: data.ntTerm
-      //미구현
-      //usr_cnt: data.usr_cnt
+      ntTerm:
+        data.nt_type === "once"
+          ? null
+          : data.nt_type === "days"
+          ? data.nt_it_days
+          : data.nt_time,
     }));
 
     res.json({
