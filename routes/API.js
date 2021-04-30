@@ -8,6 +8,7 @@ const path = require("path");
 
 const resultMessage = require("../messages/resultMessage.json");
 const inviteMessage = require("../messages/inviteMessage.json");
+const { getRandomMessageText } = require("../lib/utils");
 
 API.post("/submit", async (req, res) => {
   const formToken = req.cookies.token;
@@ -85,10 +86,12 @@ API.post("/submit", async (req, res) => {
         stDate,
         ntType,
       });
-
+      const formattedMessage = libKakaoWork.formatMessage(resultMessage, {
+        TEXT: getRandomMessageText(),
+      });
       await libKakaoWork.sendMessage({
         conversationId: decoded.conversation.id,
-        ...resultMessage,
+        ...formattedMessage,
       });
     }
 
