@@ -1,15 +1,19 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const router = require("./routes");
+const api = require("./routes/API");
 require("dotenv").config();
 
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(express.static("public"));
 
 app.use("/", router);
+app.use("/", api);
 
 app.use(function (req, res, next) {
   const err = new Error("Not Found");
@@ -22,10 +26,8 @@ app.use(function (err, req, res, next) {
   res.json({ err });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 443;
 
-app.listen(process.env.PORT || 3000, () =>
-  console.log("Example app listening on port 3000!")
-);
+app.listen(443, () => console.log("Example app listening on port 443!"));
 
 module.exports = app;

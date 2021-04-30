@@ -3,22 +3,29 @@
   "blocks": [
     {
       "type": "text",
-      "text": "{CONTENT}의 마감까지 {REMAIN}분 남았습니다.지금까지의 목표를 달성하였으면 O, 아니면 X를 눌러주세요.",
+      "text": "{CONTENT}의 마감까지 {REMAIN}분 남았습니다.지금까지의 목표를 달성하였으면 O, 아니면 X를 눌러주세요.\n10분 내에 응답하지 않으면 미완료처리됩니다.",
       "markdown": true
     },
     {
-      "type": "button",
-      "text": "O",
-      "style": "default",
-      "action_type": "submit_action",
-      "value": "true"
-    },
-    {
-      "type": "button",
-      "text": "X",
-      "style": "default",
-      "action_type": "submit_action",
-      "value": "false"
+      "type": "action",
+      "elements": [
+        {
+          "type": "button",
+          "text": "O",
+          "style": "default",
+          "action_type": "submit_action",
+          "action_name": "progress_check",
+          "value": "success/{ID}"
+        },
+        {
+          "type": "button",
+          "text": "X",
+          "style": "default",
+          "action_type": "submit_action",
+          "action_name": "progress_check",
+          "value": "fail/{ID}"
+        }
+      ]
     }
   ]
 }

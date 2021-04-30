@@ -1,28 +1,43 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
-const libKakaoWork = require("../lib/kakaoWork");
 const jwt = require("jsonwebtoken");
-const resultMessage = require("../messages/resultMessage.json");
-const registerModal = require("../messages/registerModal.json");
+const libKakaoWork = require("../lib/kakaoWork");
 const scheduleManager = require("../lib/scheduleQueue").scheduleManager;
 
-//Production에서는 router.post("/chatbot", ...)로 변경
-router.get("/", async (req, res) => {
-  //타이머 시작
-  scheduleManager.startTimer();
+const initialMemssage = require("../messages/initialMessage.json");
+const resultMessage = require("../messages/resultMessage.json");
 
-  //const users = await libKakaoWork.getUserListAll();
+//todo NorangBerry 제대로 된 거 만들기
+const DEBUG = 0;
+if (DEBUG === 1) {
+  router.all("*", (req, res, next) => {
+    console.log(`URL\n${req.url}\n\n`);
+    console.log(`HEADER\n${JSON.stringify(req.headers, null, 2)}\n\n`);
+    console.log(`BODY\n${JSON.stringify(req.body, null, 2)}\n\n`);
+    next();
+  });
+}
+
+//타이머 시작
+scheduleManager.startTimer();
+
+//Production에서는 router.post("/chatbot", ...)로 변경
+router.post("/chatbot", async (req, res) => {
+  const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
-  const users = [{ id: 2603836 }];
+  //const users = [{ id: 2628054 }, { id: 2603836 }];
 
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
   );
 
-  const tokens = conversations.map((conversation) => {
-    const token = jwt.sign(conversation, process.env.SECRET);
+  const tokens = conversations.map((conversation, index) => {
+    const token = jwt.sign(
+      { conversation, userId: users[index].id },
+      process.env.SECRET
+    );
     const tokenURL = token
       .split(".")
       .map((val, i) => "tokenPart" + i + "=" + val)
@@ -33,27 +48,17 @@ router.get("/", async (req, res) => {
 
   await Promise.all([
     tokens.map(({ tokenURL, conversation }) => {
-      const initMemssage = {
-        text: "일정을 등록하세요!",
-        blocks: [
-          {
-            type: "header",
-            text: "일정관리",
-            style: "blue",
-          },
-          {
-            type: "button",
-            text: "일정등록",
-            style: "default",
-            action_type: "open_inapp_browser",
-            value: "https://" + req.headers.host + "/register?" + tokenURL,
-          },
-        ],
-      };
+      const message = libKakaoWork.formatMessage(initialMemssage, {
+        RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
+        myScheduleURL:
+          "https://" + req.headers.host + "/mySchedule?" + tokenURL,
+        allScheduleURL:
+          "https://" + req.headers.host + "/allSchedule?" + tokenURL,
+      });
 
       libKakaoWork.sendMessage({
         conversationId: conversation.id,
-        ...initMemssage,
+        ...message,
       });
     }),
   ]);
@@ -61,80 +66,59 @@ router.get("/", async (req, res) => {
   res.end();
 });
 
-router.post("/request", async (req, res) => {
-  const { actions, message, value } = req.body;
-  const modal = { view: "" };
-  switch (value) {
-    case "new_schedule":
-      modal.view = registerModal;
-      break;
-    case "new_group_schedule":
-      modal.view = registerGroupModal;
-      break;
-    default:
-      break;
-  }
-  res.json(modal);
-});
-
-router.post("/callback", async (req, res) => {
-  const { actions, message, value, react_user_id } = req.body;
-  const coversationId = message.conversation_id;
-  var responseMessage = {};
-  switch (value) {
-    case "register":
-      callback.RegisterNewSchedule(actions);
-      break;
-    default:
-      break;
-  }
-
-  res.json(responseMessage);
-});
-
+//일정 등록용 페이지
 router.get("/register", (req, res) => {
   const query = req.query;
-
-  res.cookie(
-    "token",
-    [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(".")
+  const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
+    "."
   );
+
+  res.cookie("token", token);
 
   res.sendFile(path.join(__dirname, "/../views/register.html"));
 });
 
-router.post("/submit", async (req, res) => {
-  const formToken = req.body.token;
+//나의 일정 조회용 페이지
+router.get("/mySchedule", (req, res) => {
+  const query = req.query;
+  const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
+    "."
+  );
 
-  const data = jwt.verify(formToken, process.env.SECRET);
+  res.cookie("token", token);
 
-  const newSchedule = {
-    time: new Date(req.body.exp + " " + req.body.time),
-    conversationId: Number(data.id),
-    content: req.body.subject,
-    alarmPeriod: Number(req.body.nt_term) * 60000,
-  };
+  res.sendFile(path.join(__dirname, "/../views/mySchedule.html"));
+});
 
-  scheduleManager.pushSchedule(newSchedule);
+//공개된 일정 조회용 페이지
+router.get("/allSchedule", (req, res) => {
+  const query = req.query;
+  const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
+    "."
+  );
 
-  await libKakaoWork.sendMessage({
-    conversationId: data.id,
-    ...resultMessage,
-  });
+  res.cookie("token", token);
+
+  res.sendFile(path.join(__dirname, "/../views/allSchedule.html"));
+});
+
+router.post("/callback", (req, res) => {
+  const { action_name, message, value, react_user_id } = req.body;
+  switch (action_name) {
+    case "progress_check":
+      const arr = value.split("/");
+      scheduleManager.setPeriodAchieve(
+        react_user_id,
+        message.conversation_id,
+        Number(arr[1]),
+        arr[0] === "success"
+      );
+      break;
+    default:
+      break;
+  }
 
   res.end();
-});
-
-router.get("/my_schedule", (req, res) => {
-  //SQL쿼리
-  //HTML 생성
-  res.send("<div>여기에 일정 표시 해줘야함</div>");
-});
-
-router.get("/all_schedule", (req, res) => {
-  //SQL쿼리
-  //HTML 생성
-  res.send("<div>여기에 일정 표시 해줘야함</div>");
 });
 
 //일정 삭제
