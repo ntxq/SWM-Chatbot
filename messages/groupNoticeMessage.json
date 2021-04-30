@@ -1,0 +1,10 @@
+{
+  "text": "목표 달성 실패 알람",
+  "blocks": [
+    {
+      "type": "text",
+      "text": "{NAME}님이 목표 달성에 실패하였습니다. 최종 목표 달성까지 {TIME}남았습니다.",
+      "markdown": true
+    }
+  ]
+}
