@@ -25,9 +25,9 @@ scheduleManager.startTimer();
 //Production에서는 router.post("/chatbot", ...)로 변경
 router.post("/chatbot", async (req, res) => {
   const users = await libKakaoWork.getUserListAll();
-  //곽병곤: 2603836
+  //곽병곤: 2610813
   //최준영: 2628054
-  //const users = [{ id: 2628054 }, { id: 2603836 }];
+  //const users = [{ id: 2610813 }];
 
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
