@@ -1,15 +1,15 @@
 {
-    "text": "목표 등록을 완료했습니다!",
-    "blocks": [
-      {
-        "type": "header",
-        "text": "목표등록완료",
-        "style": "blue"
-      },
-      {
-        "type": "text",
-        "text": "목표를 등록하였습니다!",
-        "markdown": true
-      }
-    ]
-  }
+  "text": "목표가 등록 되었습니다!",
+  "blocks": [
+    {
+      "type": "header",
+      "text": "목표 등록완료",
+      "style": "blue"
+    },
+    {
+      "type": "text",
+      "text": "위대한 정신의 소유자에게는 목표가 있으며, 범인들에게는 소망이 있다.\n -워싱턴 어빙-",
+      "markdown": true
+    }
+  ]
+}
