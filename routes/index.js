@@ -9,7 +9,7 @@ const initialMemssage = require("../messages/initialMessage.json");
 const resultMessage = require("../messages/resultMessage.json");
 
 //todo NorangBerry 제대로 된 거 만들기
-const DEBUG = 1;
+const DEBUG = 0;
 if (DEBUG === 1) {
   router.all("*", (req, res, next) => {
     console.log(`URL\n${req.url}\n\n`);
@@ -23,11 +23,11 @@ if (DEBUG === 1) {
 scheduleManager.startTimer();
 
 //Production에서는 router.post("/chatbot", ...)로 변경
-router.get("/", async (req, res) => {
-  //const users = await libKakaoWork.getUserListAll();
+router.post("/chatbot", async (req, res) => {
+  const users = await libKakaoWork.getUserListAll();
   //곽병곤: 2603836
   //최준영: 2628054
-  const users = [{ id: 2628054 }, { id: 2603836 }];
+  //const users = [{ id: 2628054 }, { id: 2603836 }];
 
   const conversations = await Promise.all(
     users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
