@@ -51,9 +51,9 @@ router.post("/chatbot", async (req, res) => {
       const message = libKakaoWork.formatMessage(initialMemssage, {
         RegisterURL: "https://" + req.headers.host + "/register?" + tokenURL,
         myScheduleURL:
-          "https://" + req.headers.host + "/mySchedule?" + tokenURL,
+          "https://" + req.headers.host + "/schedule/my?" + tokenURL,
         allScheduleURL:
-          "https://" + req.headers.host + "/allSchedule?" + tokenURL,
+          "https://" + req.headers.host + "/schedule/public?" + tokenURL,
       });
 
       libKakaoWork.sendMessage({
@@ -75,11 +75,11 @@ router.get("/register", (req, res) => {
 
   res.cookie("token", token);
 
-  res.sendFile(path.join(__dirname, "/../views/register.html"));
+  res.sendFile(path.join(__dirname, "/../views/index.html"));
 });
 
 //나의 일정 조회용 페이지
-router.get("/mySchedule", (req, res) => {
+router.get("/schedule/my", (req, res) => {
   const query = req.query;
   const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
     "."
@@ -87,11 +87,11 @@ router.get("/mySchedule", (req, res) => {
 
   res.cookie("token", token);
 
-  res.sendFile(path.join(__dirname, "/../views/mySchedule.html"));
+  res.sendFile(path.join(__dirname, "/../views/index.html"));
 });
 
 //공개된 일정 조회용 페이지
-router.get("/allSchedule", (req, res) => {
+router.get("/schedule/public", (req, res) => {
   const query = req.query;
   const token = [query.tokenPart0, query.tokenPart1, query.tokenPart2].join(
     "."
@@ -99,7 +99,7 @@ router.get("/allSchedule", (req, res) => {
 
   res.cookie("token", token);
 
-  res.sendFile(path.join(__dirname, "/../views/allSchedule.html"));
+  res.sendFile(path.join(__dirname, "/../views/index.html"));
 });
 
 router.post("/callback", (req, res) => {
