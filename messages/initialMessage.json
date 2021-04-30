@@ -1,34 +1,41 @@
 {
-  "text": "당신의 스케줄을 관리해 드립니다 :)",
+  "text": "TMSM팀, 목표달성 트레이너 봇 🤖",
   "blocks": [
     {
       "type": "header",
-      "text": "⏱️ 당신의 개인 비서, 일정관리 봇 🤖",
+      "text": "목표달성을 돕는 트레이너 봇 🤖",
       "style": "blue"
     },
     {
       "type": "text",
-      "text":
-        "저는 당신의 삐빅-,\n 일정 관리를 도와드리는 일정관리 봇 입니다.\n 📅 스케줄의 내용과 일시를 입력하시면,\n 제가 대신 기억해서, 주기적으로 알려드릴게요. 삐빅-",
+      "text": " 저는 당신의 삐빅-,\n 목표달성을 도와드리는 *트레이너 봇* 입니다.\n 스케줄 📅  의 내용과 일시를 입력하시면, 제가 대신 기억하고, 주기적으로 알려드릴게요. 삐빅-",
+      "markdown": true
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "text",
+      "text": " 또 친구들에게 *목표*를 알리고 🔆 ,\n 서로를 격려하며 나아갈 수 있도록 목표를 *공유*해봐요!\n 그럼 먼저 나의 목표를 등록 해볼까요? 삐빅-😜",
       "markdown": true
     },
     {
       "type": "button",
-      "text": "나의 일정 등록하기",
+      "text": "나의 목표 등록하기",
       "style": "default",
       "action_type": "open_inapp_browser",
       "value": "{RegisterURL}"
     },
     {
       "type": "button",
-      "text": "등록한 일정 조회하기",
+      "text": "등록한 목표 조회하기",
       "style": "default",
       "action_type": "open_inapp_browser",
       "value": "{myScheduleURL}"
     },
     {
       "type": "button",
-      "text": "친구들의 일정 조회하기",
+      "text": "친구들의 목표 조회하기",
       "style": "default",
       "action_type": "open_inapp_browser",
       "value": "{allScheduleURL}"
